@@ -9,6 +9,7 @@ services:
       - '9001:9001' # MinIO Console
       - '${CASDOOR_PORT}:${CASDOOR_PORT}' # Casdoor
       - '${LOBE_PORT}:3210' # LobeChat
+      - '11434:11434' # ollama
     command: tail -f /dev/null
 
   # https://github.com/pgvector/pgvector
@@ -90,7 +91,7 @@ services:
       S3_PUBLIC_DOMAIN: "http://localhost:${MINIO_PORT}"
       S3_ENABLE_PATH_STYLE: 1
       LLM_VISION_IMAGE_USE_BASE64: 1
-      OLLAMA_PROXY_URL: "http://ollama:11434"
+      OLLAMA_PROXY_URL: "http://localhost:11434"
     env_file:
       - .env
     restart: always
@@ -100,9 +101,10 @@ services:
     image: ollama/ollama
     container_name: ollama
     environment:
-      OLLAMA_ORIGINS=*'
-      OLLAMA_HOST=0.0.0.0'
+      OLLAMA_ORIGINS: '*'
+      OLLAMA_HOST: '0.0.0.0'
     volumes:
       - './data/ollama:/root/.ollama'
     # privileged: true # for GPU
     restart: always
+    network_mode: 'service:shared-network'
